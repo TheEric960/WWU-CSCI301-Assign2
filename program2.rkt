@@ -16,10 +16,10 @@
     (define read-next
       (lambda (word word-ls str-ls)
         (cond ((null? str-ls) word-ls)
-              ((or (char=? #\return (car (string->list (car str-ls))))
+              ((char=? #\return (car (string->list (car str-ls))))
+               (read-next word word-ls (cdr str-ls)))
+              ((or (char-whitespace? (car (string->list (car str-ls))))
                    (char=? #\newline (car (string->list (car str-ls)))))
-               (read-next "" word-ls (cdr str-ls)))
-              ((char-whitespace? (car (string->list (car str-ls))))
                (read-next "" (append word-ls (list word)) (cdr str-ls)))
               (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
     (read-next "" '() (map string (read-input-file "code")))))
