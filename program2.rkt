@@ -15,7 +15,7 @@
   (lambda (name)
     (define read-next
       (lambda (word word-ls str-ls)
-        (cond ((null? str-ls) word-ls)
+        (cond ((null? str-ls) (append word-ls (list word)))
               ((char=? #\return (car (string->list (car str-ls))))
                (read-next word word-ls (cdr str-ls)))
               ((or (char-whitespace? (car (string->list (car str-ls))))
