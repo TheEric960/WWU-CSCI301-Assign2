@@ -26,13 +26,14 @@
 
 (define make-stack
   (let ((stack '()))
-    (lambda (msg . args)
+    (lambda (cmd . args)
       (cond 
-        ((eq? msg 'pop!)
-         (let ((pop (car stack)))
-           (set! stack (cdr stack))
-           pop))
-        ((eq? msg 'push!) (set! stack (append (reverse args) stack)))
-        ((eq? msg 'get-stack) stack)
-        (else "Invalid input!")))))
+        ((eq? cmd 'pop!)
+         (if (null? stack) '()
+             (let ((pop (car stack)))
+               (set! stack (cdr stack))
+               pop)))
+         ((eq? cmd 'push!) (set! stack (append (reverse args) stack)))
+         ((eq? cmd 'get-stack) stack)
+         (else "Invalid stack command.")))))
 
