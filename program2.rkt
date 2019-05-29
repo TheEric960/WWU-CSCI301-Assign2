@@ -24,3 +24,15 @@
               (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
     (read-next "" '() (map string (read-input-file "code")))))
 
+(define make-stack
+  (let ((stack '()))
+    (lambda (msg . args)
+      (cond 
+        ((eq? msg 'pop!)
+         (let ((pop (car stack)))
+           (set! stack (cdr stack))
+           pop))
+        ((eq? msg 'push!) (set! stack (append (reverse args) stack)))
+        ((eq? msg 'get-stack) stack)
+        (else "Invalid input!")))))
+
