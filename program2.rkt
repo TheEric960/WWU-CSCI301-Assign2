@@ -32,14 +32,14 @@
 
 
 (define parse-table
-  (lambda (name)
+  (let ((name "table.csv"))
     (define read-next
       (lambda (word word-ls str-ls table-ls)
         (define get-char
           (if (not (null? str-ls)) (car (string->list (car str-ls)))))
         
         (cond ((null? str-ls) table-ls)
-              ;((string=? word "nan") (read-next "" word-ls (cdr str-ls) table-ls))
+              ;((string=? word "nan") (read-next "" word-ls (cdr str-ls) table-ls)) <- this works
               ((char=? #\return get-char)
                (read-next word word-ls (cdr str-ls) table-ls))
               ((char=? #\newline get-char)
@@ -67,5 +67,5 @@
           (else "Invalid stack command.")))))
 
 
-(display (parse-table "table.csv"))
-  
+(display parse-table)
+
