@@ -11,7 +11,7 @@
               (cons x (read-file (read-char p))))))
       (read-file (read-char p)))))
 
-(define basic-parse
+(define parse-prog
   (lambda (name)
     (define read-next
       (lambda (word word-ls str-ls)
@@ -22,7 +22,7 @@
                    (char=? #\newline (car (string->list (car str-ls)))))
                (read-next "" (append word-ls (list word)) (cdr str-ls)))
               (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
-    (read-next "" '() (map string (read-input-file "code")))))
+    (read-next "" '() (map string (read-input-file name)))))
 
 (define make-stack
   (let ((stack '()))
