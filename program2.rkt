@@ -11,18 +11,25 @@
               (cons x (read-file (read-char p))))))
       (read-file (read-char p)))))
 
+
 (define parse-prog
   (lambda (name)
     (define read-next
       (lambda (word word-ls str-ls)
+        (define get-char
+          (if (not (null? str-ls)) (car (string->list (car str-ls)))))
+        
         (cond ((null? str-ls) (append word-ls (list word)))
-              ((char=? #\return (car (string->list (car str-ls))))
+              ((char=? #\return get-char)
                (read-next word word-ls (cdr str-ls)))
-              ((or (char-whitespace? (car (string->list (car str-ls))))
-                   (char=? #\newline (car (string->list (car str-ls)))))
+              ((or (char-whitespace? get-char)
+                   (char=? #\newline get-char))
                (read-next "" (append word-ls (list word)) (cdr str-ls)))
+              ((char-upper-case? get-char)
+               (read-next (string-append word "id") word-ls (cdr str-ls)))
               (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
     (read-next "" '() (map string (read-input-file name)))))
+
 
 (define make-stack
   (let ((stack '()))
