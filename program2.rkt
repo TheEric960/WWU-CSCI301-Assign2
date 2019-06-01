@@ -12,7 +12,7 @@
       (read-file (read-char p)))))
 
 
-(define make-stack
+(define (make-stack)
   (let ((stack '()))
     (lambda (cmd . args)
       (cond 
@@ -22,6 +22,7 @@
                (set! stack (cdr stack))
                pop)))
         ((eq? cmd 'push!) (set! stack (append (reverse args) stack)))
+        ((eq? cmd 'peek) (car stack))
         ((eq? cmd 'reverse!) (set! stack (reverse stack)))
         ((eq? cmd 'get-stack) stack)
         (else "Invalid stack command.")))))
@@ -35,8 +36,8 @@
           (if (not (null? str-ls)) (car (string->list (car str-ls)))))
         
         (cond ((null? str-ls) (if (number? (string->number word))
-                   (read-next "numeric" word-ls str-ls)
-                   (append word-ls (list word))))
+                                  (read-next "numeric" word-ls str-ls)
+                                  (append word-ls (list word))))
               ((char=? #\return get-char)
                (read-next word word-ls (cdr str-ls)))
               ((or (char-whitespace? get-char)
@@ -48,32 +49,93 @@
                (read-next (string-append word "id") word-ls (cdr str-ls)))
               (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
     (let ((ls (read-next "" '() (map string (read-input-file name)))))
-      (define stack make-stack)
+      (define stack (make-stack))
       (map (lambda x (stack 'push! (car x))) ls)
       (stack 'reverse!)
       stack)))
 
 
-;(define parse-table
-;  (let ((name "table.csv"))
-;    (define read-next
-;      (lambda (word word-ls str-ls table-ls)
-;        (define get-char
-;          (if (not (null? str-ls)) (car (string->list (car str-ls)))))
-;        
-;        (cond ((null? str-ls) table-ls)
-;              ;((string=? word "nan") (read-next "" word-ls (cdr str-ls) table-ls)) <- this works
-;              ((char=? #\return get-char)
-;               (read-next word word-ls (cdr str-ls) table-ls))
-;              ((char=? #\newline get-char)
-;               (read-next "" '() (cdr str-ls) (cons word-ls table-ls)))
-;              ((char=? #\, get-char)
-;               (read-next "" (append word-ls (list word)) (cdr str-ls) table-ls))
-;              (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls) table-ls)))))
-;    (read-next "" '() (map string (read-input-file name)) '())))
-;    
+(define parse-stack (make-stack))
+(parse-stack 'push!  '"$$" '"program")
+(define pstack-out '())
+(define input-stream '())
+(define comment '())
+
+
+(define match-token?
+  (lambda (word)
+      (define run-through
+        (lambda (ls)
+          (cond ((null? ls) #f)
+                ((string=? (car ls) word) #t)
+                (else (run-through (cdr ls))))))
+    (run-through '("id" "number" "read" "write" ":=" "(" ")" "+" "-" "*" "/" "$$"))))
 
 
 
+(define get-cmd
+  (lambda (word)
+    (let ((matcher (prog-stack 'peek)))
+      (cond ((string=? "program" word)
+             (cond ((string=? matcher "id") 1)
+                   ((string=? matcher "read") 1)
+                   ((string=? matcher "write") 1)
+                   ((string=? matcher "$$") 1)
+                   (else "Error")))
+            ((string=? "stmt_list" word)
+             (cond ((string=? matcher "id") 2)
+                   ((string=? matcher "read") 2)
+                   ((string=? matcher "write") 2)
+                   ((string=? matcher "$$") 3)
+                   (else "Error")))
+            ((string=? "stmt" word)
+             (cond ((string=? matcher "id") 4)
+                   ((string=? matcher "read") 5)
+                   ((string=? matcher "write") 6)
+                   (else "Error")))
+            ((string=? "expr" word)
+             (cond ((string=? matcher "id") 7)
+                   ((string=? matcher "number") 7)
+                   ((string=? matcher "(") 7)
+                   (else "Error")))
+            ((string=? "term_tail" word)
+             (cond ((string=? matcher "id") 9)
+                   ((string=? matcher "read") 9)
+                   ((string=? matcher "write") 9)
+                   ((string=? matcher ")") 9)
+                   ((string=? matcher "+") 8)
+                   ((string=? matcher "-") 8)
+                   ((string=? matcher "$$") 9)
+                   (else "Error")))
+            ((string=? "term" word)
+             (cond ((string=? matcher "id") 10)
+                   ((string=? matcher "number") 10)
+                   ((string=? matcher "(") 10)
+                   (else "Error")))
+            ((string=? "factor_tail" word)
+             (cond ((string=? matcher "id") 9)
+                   ((string=? matcher "read") 9)
+                   ((string=? matcher "write") 9)
+                   ((string=? matcher ")") 9)
+                   ((string=? matcher "+") 8)
+                   ((string=? matcher "-") 8)
+                   ((string=? matcher "*") 8)
+                   ((string=? matcher "/") 8)
+                   ((string=? matcher "$$") 9)
+                   (else "Error")))
+            ((string=? "factor" word)
+             (cond ((string=? matcher "id") 14)
+                   ((string=? matcher "number") 15)
+                   ((string=? matcher "(") 13)
+                   (else "Error")))
+            ((string=? "add_op" word)
+             (cond ((string=? matcher "+") 16)
+                   ((string=? matcher "-") 17)
+                   (else "Error")))
+            ((string=? "mult_op" word)
+             (cond (string=? 18)
+                   ((string=? matcher "/") 19)
+                   (else "Error")))
+            (else (match-token? word))))))
 
-  
+
