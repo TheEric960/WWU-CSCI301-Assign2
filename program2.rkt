@@ -64,13 +64,12 @@
 
 (define match-token?
   (lambda (word)
-      (define run-through
-        (lambda (ls)
-          (cond ((null? ls) #f)
-                ((string=? (car ls) word) #t)
-                (else (run-through (cdr ls))))))
+    (define run-through
+      (lambda (ls)
+        (cond ((null? ls) #f)
+              ((string=? (car ls) word) #t)
+              (else (run-through (cdr ls))))))
     (run-through '("id" "number" "read" "write" ":=" "(" ")" "+" "-" "*" "/" "$$"))))
-
 
 
 (define get-cmd
