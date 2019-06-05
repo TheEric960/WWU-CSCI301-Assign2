@@ -36,9 +36,9 @@
         (define get-char
           (if (not (null? str-ls)) (car (string->list (car str-ls)))))
         
-        (cond ((null? str-ls) (if (string=? "$$" word)
-                                  (read-next "" word-ls str-ls)
-                                  (append word-ls (list word))))
+        (cond ((null? str-ls) (cond ((string=? "$$" word) (read-next "" word-ls str-ls))
+                                    ((number? (string->number word)) (read-next "number" word-ls str-ls))
+                                    (else (append word-ls (list word)))))
               ((char=? #\return get-char)
                (read-next word word-ls (cdr str-ls)))
               ((or (char-whitespace? get-char)
