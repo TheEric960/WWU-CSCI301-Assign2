@@ -192,6 +192,7 @@
                        (code-stream 'push! token)
                        (case cmd
                          ((1) (parse-stack 'push! '"stmt_list")
+                              (comment 'push! '"predict 1")
                               (walk-through))
                          ((2) (parse-stack 'push! '"stmt_list" '"stmt")
                               (comment 'push! '"predict 2")
@@ -244,7 +245,7 @@
                          ((19) (parse-stack 'push! '"number")
                                (comment 'push! '"predict 19")
                                (walk-through))))
-                      ((eq? cmd #t) (comment 'push! (if (not (null? token)) (string-append "match " token)))
+                      ((eq? cmd #t) (if (not (null? token)) (comment 'push! (string-append "match " token)))
                                     (walk-through))
                       (else error))))))
 
