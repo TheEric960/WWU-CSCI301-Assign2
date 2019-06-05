@@ -242,7 +242,7 @@
                          ((18) (parse-stack 'push! '"*")
                                (comment 'push! '"predict 18")
                                (walk-through))
-                         ((19) (parse-stack 'push! '"number")
+                         ((19) (parse-stack 'push! '"/")
                                (comment 'push! '"predict 19")
                                (walk-through))))
                       ((eq? cmd #t) (if (not (or (null? token) (string=? token "")))
