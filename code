@@ -3,3 +3,4 @@ read B
 C := A + B
 write C
 write C / 2
+$$
