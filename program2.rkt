@@ -30,7 +30,7 @@
 
 
 (define code-stream
-  (let ((name "code"))
+  (let ((name "input"))
     (define read-next
       (lambda (word word-ls str-ls)
         (define get-char
@@ -245,7 +245,8 @@
                          ((19) (parse-stack 'push! '"number")
                                (comment 'push! '"predict 19")
                                (walk-through))))
-                      ((eq? cmd #t) (if (not (or (null? token) (string=? token ""))) (comment 'push! (string-append "match " token)))
+                      ((eq? cmd #t) (if (not (or (null? token) (string=? token "")))
+                                        (if (not (string=? head "$$")) (comment 'push! (string-append "match " token))))
                                     (walk-through))
                       (else error))))))
 
