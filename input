@@ -1,4 +1,4 @@
-read A
+:= read A
 read B
 C := A + B
 D := C / 2
