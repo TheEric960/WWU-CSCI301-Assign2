@@ -1,4 +1,5 @@
 
+; reads the input file
 (define read-input-file
   (lambda (name)
     (let ((p (open-input-file name)))
@@ -12,6 +13,7 @@
       (read-file (read-char p)))))
 
 
+; stack function - pretty cool, yeah?
 (define (make-stack)
   (let ((stack '()))
     (lambda (cmd . args)
@@ -29,6 +31,7 @@
         (else "Invalid stack command.")))))
 
 
+; stream of the tokens created from given program
 (define code-stream
   (let ((name "input"))
     (define read-next
@@ -56,6 +59,7 @@
       stack)))
 
 
+; stream of non-tokens created from given program
 (define code-stream-raw
   (let ((name "input"))
     (define read-next
@@ -80,6 +84,7 @@
       stack)))
 
 
+; making our output stacks and files - stacks for easy consistancy
 (define parse-stack (make-stack))
 (parse-stack 'push!  '"$$" '"program")
 
@@ -95,6 +100,7 @@
 (define p3 (open-output-file "comment"))
 
 
+; end the program
 (define fin
   (lambda (error)
     (parse-stack-out 'reverse!)
@@ -114,6 +120,7 @@
     (write-to-file (comment 'get-stack) p3)))
 
 
+; check for a matching token
 (define match-token?
   (lambda (word)
     (define run-through
@@ -124,6 +131,7 @@
     (run-through '("id" "number" "read" "write" ":=" "(" ")" "+" "-" "*" "/" "$$"))))
 
 
+; check for a matching command
 (define get-cmd
   (lambda (word)
     (let ((matcher (code-stream 'peek)))
@@ -193,6 +201,7 @@
             (else (match-token? word))))))
 
 
+; let's do the program
 (let walk-through ()
   (let* ((stack (parse-stack 'get-stack))
          (head (parse-stack 'pop!))
@@ -269,6 +278,7 @@
                             (fin #t)))))))
 
 
+; got to close those files, right?
 (close-output-port p1)
 (close-output-port p2)
 (close-output-port p3)
