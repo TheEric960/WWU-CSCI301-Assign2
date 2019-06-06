@@ -56,16 +56,39 @@
       stack)))
 
 
+(define code-stream-raw
+  (let ((name "input"))
+    (define read-next
+      (lambda (word word-ls str-ls)
+        (define get-char
+          (if (not (null? str-ls)) (car (string->list (car str-ls)))))
+        
+        (cond ((null? str-ls) (cond ((string=? "$$" word) (read-next "" word-ls str-ls))
+                                    (else (append word-ls (list word)))))
+              ((char=? #\return get-char)
+               (read-next word word-ls (cdr str-ls)))
+              ((or (char-whitespace? get-char)
+                   (char=? #\newline get-char))
+               (read-next "" (append word-ls (list word)) (cdr str-ls)))
+              ((char-upper-case? get-char)
+               (read-next (string-append word (string get-char)) word-ls (cdr str-ls)))
+              (else (read-next (string-append word (car str-ls)) word-ls (cdr str-ls))))))
+    (let ((ls (read-next "" '() (map string (read-input-file name)))))
+      (define stack (make-stack))
+      (map (lambda x (if (not (string=? "" (car x))) (stack 'push! (car x)))) ls)
+      (stack 'reverse!)
+      stack)))
+
+
 (define parse-stack (make-stack))
 (parse-stack 'push!  '"$$" '"program")
 
 (define parse-stack-out (make-stack))
 
 (define input-stream (make-stack))
-(input-stream 'push! (code-stream 'peek))
 
 (define comment (make-stack))
-(comment 'push! "inital stack contents")
+(comment 'push! "initial stack contents")
 
 (define p1 (open-output-file "parsestack"))
 (define p2 (open-output-file "inputstream"))
@@ -184,12 +207,14 @@
   (let* ((stack (parse-stack 'get-stack))
          (head (parse-stack 'pop!))
          (cmd (if (null? head) '() (get-cmd head)))
-         (token (code-stream 'pop!)))
+         (token (code-stream 'pop!))
+         (raw-token (code-stream-raw 'pop!)))
     (parse-stack-out 'push! stack)
-    (input-stream 'push! token)
+    (input-stream 'push! raw-token)
     (cond ((null? head) (fin #f))
           (else (cond ((number? cmd)
                        (code-stream 'push! token)
+                       (code-stream-raw 'push! raw-token)
                        (case cmd
                          ((1) (parse-stack 'push! '"stmt_list")
                               (comment 'push! '"predict 1")
